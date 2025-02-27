@@ -1,0 +1,195 @@
+{%- assign debug = "false" -%}
+{%- assign font-size = 30 -%}
+{%- assign description-clamp = 8 -%}
+{%- assign px = 12 -%}
+{%- assign py = 1 -%}
+
+{%- assign utc_offset = trmnl:user:utc_offset -%}
+{%- assign hour = 'now' | date: "%s" | plus: utc_offset | date : '%H' | plus: 0 -%}
+{%- assign minute = 'now' | date: "%s" | plus: utc_offset | date : '%M' | plus: 0 -%}
+
+{% comment %}DEBUG - REMOVE # TO SET MANUAL VALUE{% endcomment %}
+{%- # assign hour = 5 -%}
+{%- # assign minute = 55 -%}
+
+{%- assign hour12 = hour | modulo: 12 -%}
+{%- if hour12 == 0 -%}{% assign hour12 = 12 -%}{%- endif -%}
+{%- assign next_hour = hour12 | plus: 1 -%}
+{%- if next_hour > 12 -%}{% assign next_hour = 1 -%}{%- endif -%}
+
+{%- capture hour_word -%}
+{%- case hour12 -%}
+{%- when 1 -%}ONE
+{%- when 2 -%}TWO
+{%- when 3 -%}THREE
+{%- when 4 -%}FOUR
+{%- when 5 -%}FIVE
+{%- when 6 -%}SIX
+{%- when 7 -%}SEVEN
+{%- when 8 -%}EIGHT
+{%- when 9 -%}NINE
+{%- when 10 -%}TEN
+{%- when 11 -%}ELEVEN
+{%- when 12 -%}TWELVE
+{%- endcase -%}
+{%- endcapture -%}
+
+{%- capture next_hour_word -%}
+{%- case next_hour -%}
+{%- when 1 -%}ONE
+{%- when 2 -%}TWO
+{%- when 3 -%}THREE
+{%- when 4 -%}FOUR
+{%- when 5 -%}FIVE
+{%- when 6 -%}SIX
+{%- when 7 -%}SEVEN
+{%- when 8 -%}EIGHT
+{%- when 9 -%}NINE
+{%- when 10 -%}TEN
+{%- when 11 -%}ELEVEN
+{%- when 12 -%}TWELVE
+{%- endcase -%}
+{%- endcapture -%}
+
+{%- capture active_words -%}
+IT,IS
+{%- endcapture -%}
+
+{%- capture active_minute_words -%}
+{%- if minute >= 5 and minute < 10 -%}
+,FIVE
+{%- elsif minute >= 55 -%}
+,FIVE
+{%- elsif minute >= 10 and minute < 15 -%}
+,TEN
+{%- elsif minute >= 50 and minute < 55 -%}
+,TEN
+{%- elsif minute >= 15 and minute < 20 -%}
+,A,QUARTER
+{%- elsif minute >= 45 and minute < 50 -%}
+,A,QUARTER
+{%- elsif minute >= 20 and minute < 25 -%}
+,TWENTY
+{%- elsif minute >= 40 and minute < 45 -%}
+,TWENTY
+{%- elsif minute >= 25 and minute < 30 -%}
+,TWENTY,FIVE
+{%- elsif minute >= 35 and minute < 40 -%}
+,TWENTY,FIVE
+{%- elsif minute >= 30 and minute < 35 -%}
+,HALF
+{%- endif -%}
+{%- endcapture -%}
+
+{%- capture active_hour_words -%}
+{%- if minute < 35 -%}
+,{{ hour_word }}
+{%- else -%}
+,{{ next_hour_word }}
+{%- endif -%}
+
+{%- if minute >= 5 and minute < 35 -%}
+,PAST
+{%- elsif minute >= 35 -%}
+,TO
+{%- endif -%}
+{%- endcapture -%}
+
+{%- capture suffix_words -%}
+,IN,THE
+{%- if hour >= 6 and hour < 12 -%}
+,MORNING
+{%- elsif hour >= 12 and hour < 18 -%}
+,AFTERNOON
+{%- elsif hour >= 18 and hour <= 23 -%}
+,EVENING
+{%- else -%}
+,NIGHT
+{%- endif -%}
+{%- endcapture -%}
+  
+{%- assign words_to_highlight = active_words | split: ',' -%}
+{%- assign minute_words_to_highlight = active_minute_words | split: ',' -%}
+{%- assign hour_words_to_highlight = active_hour_words | split: ',' -%}
+{%- assign suffix_words_to_highlight = suffix_words | split: ',' -%}
+
+<style>
+  .trmnl .markdown .content .description {
+    font-size: {{ font-size }}px;
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    text-align: justify;
+  }
+  .description .text--black {
+    font-weight: bold;
+  }
+</style>
+
+<div class="layout">
+  <div class="markdown">
+    <div class="content">
+      <div class="description text--gray-6 clamp--{{ description-clamp }} px--{{ px }} py--{{ py }}">
+        {%- comment -%}Display the beginning row{%- endcomment -%}
+        {%- assign begin_words = "IT IS" | split: ' ' -%}
+        {%- for word in begin_words -%}
+          {%- if words_to_highlight contains word -%}
+            <span class="text--black">{{ word }}</span>
+          {%- else -%}
+            {{ word }}
+          {%- endif -%}
+          {{ " " }}
+        {%- endfor -%}
+        
+        {%- comment -%}Display the minutes rows{%- endcomment -%}
+        {%- assign minute_rows = "A QUARTER TWENTY FIVE HALF TEN" | split: ',' -%}
+        {%- for line in minute_rows -%}
+          {%- assign line_words = line | split: ' ' -%}
+          {%- for word in line_words -%}
+            {%- if minute_words_to_highlight contains word -%}
+              <span class="text--black">{{ word }}</span>
+            {%- else -%}
+              {{ word }}
+            {%- endif -%}
+            {{ " " }}
+          {%- endfor -%}
+        {%- endfor -%}
+      
+        {%- comment -%}Display the hours rows{%- endcomment -%}
+        {%- assign hour_rows = "TO PAST NINE ONE FIVE TWO FOUR THREE SIX EIGHT ELEVEN SEVEN TWELVE TEN" | split: ',' -%}
+        {%- for line in hour_rows -%}
+          {%- assign line_words = line | split: ' ' -%}
+          {%- for word in line_words -%}
+            {%- if hour_words_to_highlight contains word -%}
+              <span class="text--black">{{ word }}</span>
+            {%- else -%}
+              {{ word }}
+            {%- endif -%}
+            {{ " " }}
+          {%- endfor -%}
+        {%- endfor -%}
+      
+        {%- comment -%}Display the suffix row{%- endcomment -%}
+        {%- assign suffix_words = "IN THE MORNING NIGHT EVENING AFTERNOON" | split: ' ' -%}
+        {%- for word in suffix_words -%}
+          {%- if suffix_words_to_highlight contains word -%}
+            <span class="text--black">{{ word }}</span>
+          {%- else -%}
+            {{ word }}
+          {%- endif -%}
+          {{ " " }}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- if debug == "true" -%}
+  Debug info:
+  Active words: {{ words_to_highlight | join: ', ' }}<br>
+  Active minutes: {{ minute_words_to_highlight | join: ', ' }}<br>
+  Active hours: {{ hour_words_to_highlight | join: ', ' }}<br>
+  Current time: {{ hour }}:{{ minute }}<br>
+  Hour word: {{ hour_word }}<br>
+  Next hour word: {{ next_hour_word }}<br>
+{%- endif -%}

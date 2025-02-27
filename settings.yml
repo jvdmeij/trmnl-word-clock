@@ -1,0 +1,10 @@
+---
+strategy: static
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: ''
+polling_headers: ''
+name: Word Clock
+refresh_interval: 15
