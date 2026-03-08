@@ -1,0 +1,19 @@
+---
+strategy: static
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: ''
+polling_headers: ''
+polling_body: ''
+id: 19925
+custom_fields:
+- keyname: author_bio
+  name: About This Plugin
+  field_type: author_bio
+  category: calendar,life
+  description: Word clock created by Jasper, @jasper on TRMNL Discord.
+  email_address: info@jaspervandermeij.com
+name: Word Clock
+refresh_interval: 15
